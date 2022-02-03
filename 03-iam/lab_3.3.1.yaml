@@ -1,0 +1,34 @@
+Description: "This is a sample yaml cloud formation template."
+Resources:
+  TestPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "s3:*"
+            Resource: "*"
+  TestRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Ref TestPolicy
+  S3Bucket1:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: tkonarik-s3-bucket1
+  S3Bucket2:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: tkonarik-s3-bucket2

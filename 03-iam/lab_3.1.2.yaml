@@ -1,0 +1,26 @@
+Description: "This is a sample yaml cloud formation template."
+Resources:
+  TestRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action:
+              - "sts:AssumeRole"
+  TestPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "sts:AssumeRole"
+            Resource: "*"
+      Roles:
+        - !Ref TestRole
