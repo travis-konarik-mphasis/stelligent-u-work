@@ -1,0 +1,57 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  S3BucketName:
+    Description: "This is the S3 Bucket Name"
+    Type: String
+    Default: stelligent-u-travis.konarik
+Conditions:
+  S3BucketNamePrefix: !Equals [!Ref AWS::Region, 'us-east-1']
+Resources:
+  AccountIdS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !If
+      - S3BucketNamePrefix
+      - !Join
+        - '-'
+        - - !Ref AWS::AccountId
+          - !Ref S3BucketName
+      - !Join
+        - '-'
+        - - !Ref AWS::Region
+          - !Ref S3BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: TestTag1Key
+          Value: TestTag1Value
+        - Key: TestTag2Key
+          Value: TestTag2Value
+  S3BucketIAMPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AccountIdS3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:GetObject"
+              - "s3:GetObjectVersion"
+            Resource: !Sub arn:aws:s3:::${AccountIdS3Bucket}/*
+            Principal: '*'
+          - Effect: Deny
+            Action:
+              - "s3:*"
+            Resource: !Sub arn:aws:s3:::${AccountIdS3Bucket}/data/private.txt
+            NotPrincipal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+
+          - Effect: Allow
+            Action:
+              - "s3:*"
+            Resource: !Sub arn:aws:s3:::${AccountIdS3Bucket}/data/private.txt
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
