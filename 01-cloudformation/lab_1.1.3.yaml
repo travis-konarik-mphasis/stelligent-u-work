@@ -1,0 +1,14 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  S3BucketName:
+    Description: "This is the S3 Bucket Name"
+    Type: String
+    Default: practice-bucket
+Resources:
+  AccountIdS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join
+        - '-'
+        - - !Ref AWS::AccountId
+          - !Ref S3BucketName

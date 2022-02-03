@@ -1,0 +1,15 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  UserName:
+    Description: "The UserName to be added to AWS"
+    Type: String
+    Default: practice-1-2-3-user
+Conditions:
+  S3BucketNamePrefix: !Equals [!Ref AWS::Region, 'us-east-1']
+Resources:
+  PracitceUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref UserName
+      ManagedPolicyArns:
+        - !ImportValue ExportedManagedPolicyArn

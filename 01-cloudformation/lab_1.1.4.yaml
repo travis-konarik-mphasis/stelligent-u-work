@@ -1,0 +1,22 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  S3BucketName:
+    Description: "This is the S3 Bucket Name"
+    Type: String
+    Default: practice-bucket
+Conditions:
+  S3BucketNamePrefix: !Equals [!Ref AWS::Region, 'us-east-1']
+Resources:
+  AccountIdS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !If
+      - S3BucketNamePrefix
+      - !Join
+        - '-'
+        - - !Ref AWS::AccountId
+          - !Ref S3BucketName
+      - !Join
+        - '-'
+        - - !Ref AWS::Region
+          - !Ref S3BucketName
