@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey" : "Ec2AmiId",
+    "ParameterValue" : "ami-096198a0bccc6bad4"
+  },
+  {
+    "ParameterKey" : "Ec2InstanceType",
+    "ParameterValue" : "t2.micro"
+  },
+  {
+    "ParameterKey" : "KeyPairName",
+    "ParameterValue" : "stelligent-testing"
+  }
+]
