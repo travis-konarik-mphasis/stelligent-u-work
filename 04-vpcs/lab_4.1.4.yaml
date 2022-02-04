@@ -1,0 +1,45 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  Ec2AmiId:
+    Description: "EC2 AMI Id"
+    Type: String
+  Ec2InstanceType:
+    Description: "Instance type of the instance"
+    Type: String
+  KeyPairName:
+    Description: "Key pair name for accessing instance"
+    Type: String
+Resources:
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      "AWS::CloudFormation::Init":
+        config:
+          packages:
+            yum:
+              openssh-server: []
+              openssh-clients: []
+    Properties:
+      ImageId: !Ref Ec2AmiId
+      KeyName: !Ref KeyPairName
+      AvailabilityZone: us-east-1a
+      SubnetId: !ImportValue VpcSubnetId
+      InstanceType: !Ref Ec2InstanceType
+      Tags:
+        - Key: user
+          Value: tkonarik
+        - Key: stelligent-u-lesson
+          Value: 4
+        - Key: stelligent-u-lab
+          Value: 4.1.1
+Outputs:
+  Ec2InstanceId:
+    Description: "EC2 Instance Id"
+    Value: !Ref Ec2Instance
+    Export:
+      Name: Ec2InstanceId
+  Ec2InstancePrivateIp:
+    Description: "EC2 Instance Id"
+    Value: !GetAtt Ec2Instance.PrivateIp
+    Export:
+      Name: Ec2InstancePrivateIp

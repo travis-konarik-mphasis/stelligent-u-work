@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey" : "VpcCidrBlock",
+    "ParameterValue" : "10.0.0.0/16"
+  },
+  {
+    "ParameterKey" : "VpcSubnetCidrBlock",
+    "ParameterValue" : "10.0.0.0/24"
+  },
+  {
+    "ParameterKey" : "AllCidrBlock",
+    "ParameterValue" : "0.0.0.0/0"
+  }
+]
