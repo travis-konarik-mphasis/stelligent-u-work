@@ -1,0 +1,53 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  VpcCidrBlock:
+    Description: "Parameter Specified VPC CIDR Block Value"
+    Type: String
+  VpcSubnetCidrBlock:
+    Description: "Parameter Specified VPC Subnet CIDR Block Value"
+    Type: String
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidrBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: user
+          Value: tkonarik
+        - Key: stelligent-u-lesson
+          Value: 4
+        - Key: stelligent-u-lab
+          Value: 4.1.1
+  VpcSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref VpcSubnetCidrBlock
+      VpcId: !Ref Vpc
+      AvailabilityZone: us-east-1a
+  512LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: 512LaunchTemplate
+      LaunchTemplateData:
+        InstanceType: t2.micro
+        KeyName: tk-key
+  HostA:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 512LaunchTemplate
+        Version: 1
+      ImageId: ami-0ef6fb504535468b2
+      AvailabilityZone: us-east-1a
+      SubnetId: !Ref VpcSubnet
+  HostB:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 512LaunchTemplate
+        Version: 1
+      ImageId: ami-096198a0bccc6bad4
+      AvailabilityZone: us-east-1a
+      SubnetId: !Ref VpcSubnet
