@@ -1,0 +1,29 @@
+Lab 6.1.1
+aws cloudformation create-stack --stack-name lab-6-1-1 --template-body file://lab_6.1.1.yaml --parameters file://parameters_lab_6.1.1.json
+aws autoscaling create-auto-scaling-group --auto-scaling-group-name lab-6-1-1-asg --min-size 1 --max-size 1 --instance-id i-0223fcdf818cb83b6
+
+Lab 6.1.2
+aws cloudformation update-stack --stack-name lab-6-1-1 --template-body file://lab_6.1.2.yaml --parameters file://parameters_lab_6.1.2.json
+
+Lab 6.1.3
+aws cloudformation update-stack --stack-name lab-6-1-1 --template-body file://lab_6.1.3.yaml --parameters file://parameters_lab_6.1.3.json
+
+Lab 6.1.4
+aws cloudformation update-stack --stack-name lab-6-1-1 --template-body file://lab_6.1.4.yaml --parameters file://parameters_lab_6.1.4.json
+
+Lab 6.1.5
+aws cloudformation update-stack --stack-name lab-6-1-1 --template-body file://lab_6.1.5.yaml --parameters file://parameters_lab_6.1.5.json
+
+Lab 6.1.6
+aws cloudformation delete-stack --stack-name lab-6-1-1
+
+Lab 6.2.1
+aws cloudformation create-stack --stack-name lab-6-1-1 --template-body file://lab_6.1.5.yaml --parameters file://parameters_lab_6.1.5.json
+aws cloudformation describe-stack-resources --stack-name lab-6-1-1 --query 'StackResources[?LogicalResourceId==`612AutoScalingGroup`].PhysicalResourceId'
+aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[?AutoScalingGroupName==`lab-6-1-1-612AutoScalingGroup-1FI7V2ZEQ0CEP`].Instances[*]'
+
+Lab 6.2.2
+aws cloudformation update-stack --stack-name lab-6-1-1 --template-body file://lab_6.2.2.yaml --parameters file://parameters_lab_6.2.2.json
+
+Lab 6.2.3
+Lab 6.2.4
