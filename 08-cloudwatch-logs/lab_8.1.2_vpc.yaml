@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: user
+          Value: tkonarik
+        - Key: stelligent-u-lesson
+          Value: 4
+        - Key: stelligent-u-lab
+          Value: 4.1.1
+  VpcInternetGateway:
+    Type: AWS::EC2::InternetGateway
+  VpcInternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref VpcInternetGateway
+      VpcId: !Ref Vpc
+  VpcPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId: !Ref Vpc
+      AvailabilityZone: us-east-1a
+  VpcPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+  VpcPublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VpcInternetGateway
+      RouteTableId: !Ref VpcPublicRouteTable
+  VpcPublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VpcPublicRouteTable
+      SubnetId: !Ref VpcPublicSubnet
+  VpcAlbSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP access on port 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: "0.0.0.0/0"
+      VpcId: !Ref Vpc
+  VpcSshSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SSH Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref Vpc
+  VpcWebServerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP access via port 80 locked down to the load balancer SG + SSH access via port 22 locked down SSH SG
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          SourceSecurityGroupId: !Ref VpcAlbSecurityGroup
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          SourceSecurityGroupId: !Ref VpcSshSecurityGroup
+      VpcId: !Ref Vpc
+Outputs:
+  VpcPublicSubnetId:
+    Description: "VPC Subnet Id"
+    Value: !Ref VpcPublicSubnet
+    Export:
+      Name: VpcPublicSubnetId
+  VpcWebServerSecurityGroupId:
+    Description: "VPC Web Server Security Group Id"
+    Value: !Ref VpcWebServerSecurityGroup
+    Export:
+      Name: VpcWebServerSecurityGroupId

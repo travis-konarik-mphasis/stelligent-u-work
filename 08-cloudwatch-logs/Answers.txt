@@ -1,0 +1,29 @@
+Lab 8.1.1
+aws logs create-log-group --log-group-name travis.konarik.c9logs
+aws logs create-log-stream --log-group-name travis.konarik.c9logs --log-stream-name c9.training
+aws logs describe-log-groups
+aws logs describe-log-streams --log-group-name travis.konarik.c9logs
+
+Lab 8.1.2
+aws cloudformation create-stack --stack-name lab-8-1-2-vpc --template-body file://lab_8.1.2_vpc.yaml
+aws cloudformation create-stack --stack-name lab-8-1-2-instance --template-body file://lab_8.1.2_instance.yaml --capabilities=CAPABILITY_IAM
+aws logs get-log-events --log-group-name travis.konarik.c9logs --log-stream-name c9.training
+
+Lab 8.1.4
+aws logs put-retention-policy --log-group-name travis.konarik.c9logs --retention-in-days 60
+aws logs describe-log-groups
+aws logs put-retention-policy --log-group-name travis.konarik.c9logs --retention-in-days 3653
+aws logs describe-log-groups
+
+Lab 8.1.5
+aws logs delete-log-stream --log-group-name travis.konarik.c9logs --log-stream-name c9.training
+aws logs delete-log-group --log-group-name travis.konarik.c9logs
+
+Lab 8.2.1
+aws cloudformation create-stack --stack-name lab-8-2-1 --template-body file://lab_8.2.1.yaml
+
+Lab 8.2.2
+aws cloudformation create-stack --stack-name lab-8-2-2 --template-body file://lab_8.2.2.yaml --parameters ParameterKey=CallingUserArn,ParameterValue="$(aws sts get-caller-identity --query Arn --output text)"
+awslogs get lab-8-2-1-LogGroup-56EBgeGhnrU1 ALL
+
+Lab 8.2.3
