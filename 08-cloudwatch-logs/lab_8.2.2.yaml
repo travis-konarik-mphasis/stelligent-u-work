@@ -1,0 +1,21 @@
+Parameters:
+  CallingUserArn:
+    Description: Calling user arn
+    Type: String
+Resources:
+  TestBucket1:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: userArn
+          Value: !Ref CallingUserArn
+        - Key: stelligent-u
+          Value: 8.2.2
+  TestBucket2:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: userArn
+          Value: !Ref CallingUserArn
+        - Key: stelligent-u
+          Value: 8.2.2
