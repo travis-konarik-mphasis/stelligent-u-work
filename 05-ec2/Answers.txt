@@ -23,6 +23,8 @@ aws cloudformation update-stack --stack-name lab-5-2-1 --template-body file://la
 ssh -i tk-key.pem ec2-user@54.227.250.54
 
 Lab 5.3.2
-aws cloudformation update-stack --stack-name lab-5-2-1 --template-body file://lab_5.3.2.yaml --parameters file://parameters_lab_5.3.2.json --capabilities CAPABILITY_NAMED_IAM
+aws cloudformation create-stack --stack-name lab-5-3-2-vpn --template-body file://lab_5.3.2_vpn.yaml --parameters file://parameters_lab_5.3.2.json --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name lab-5-3-2-instance --template-body file://lab_5.3.2_instance.yaml --parameters file://parameters_lab_5.3.2.json
 
 Lab 5.3.3
+Default VPN was not available to my user.  This was done in Lab 5.3.2

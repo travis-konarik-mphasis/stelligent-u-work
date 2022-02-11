@@ -10,92 +10,6 @@ Parameters:
     Description: "Parameter Specified VPC Subnet CIDR Block Value"
     Type: String
 Resources:
-  Vpc:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: !Ref VpcCidrBlock
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: user
-          Value: tkonarik
-        - Key: stelligent-u-lesson
-          Value: 4
-        - Key: stelligent-u-lab
-          Value: 4.1.1
-  VpcInternetGateway:
-    Type: AWS::EC2::InternetGateway
-  VpcInternetGatewayAttachement:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      InternetGatewayId: !Ref VpcInternetGateway
-      VpcId: !Ref Vpc
-  VpcRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref Vpc
-  VpcInternetGatewayRoute:
-    Type: AWS::EC2::Route
-    DependsOn:
-      - VpcInternetGateway
-      - VpcInternetGatewayAttachement
-    Properties:
-      RouteTableId: !Ref VpcRouteTable
-      DestinationCidrBlock: !Ref AllCidrBlock
-      GatewayId: !Ref VpcInternetGateway
-  VpcSubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      CidrBlock: !Ref VpcSubnetCidrBlock
-      VpcId: !Ref Vpc
-      AvailabilityZone: us-east-1a
-  VpcSubnetRoutTableAssoc:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref VpcRouteTable
-      SubnetId: !Ref VpcSubnet
-  VpcSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      VpcId: !Ref Vpc
-      GroupDescription: Vpc Security Group
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: !Ref AllCidrBlock
-      - IpProtocol: icmp
-        FromPort: 8
-        ToPort: -1
-        CidrIp: !Ref AllCidrBlock
-  512LaunchTemplate:
-    Type: AWS::EC2::LaunchTemplate
-    Properties:
-      LaunchTemplateName: 512LaunchTemplate
-      LaunchTemplateData:
-        InstanceType: t2.micro
-        KeyName: tk-key
-        SecurityGroupIds:
-          - !Ref VpcSecurityGroup
-  HostBCloudWatchAgentRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
-  HostBCloudWatchAgentInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Roles:
-        - !Ref HostBCloudWatchAgentRole
   HostB:
     Type: AWS::EC2::Instance
     Metadata:
@@ -184,12 +98,12 @@ Resources:
                 systemctl start cfn-hup.service
     Properties:
       LaunchTemplate:
-        LaunchTemplateId: !Ref 512LaunchTemplate
+        LaunchTemplateId: !ImportValue 512LaunchTemplateId
         Version: 1
       ImageId: ami-0b0ea68c435eb488d
       AvailabilityZone: us-east-1a
-      SubnetId: !Ref VpcSubnet
-      IamInstanceProfile: !Ref HostBCloudWatchAgentInstanceProfile
+      SubnetId: !ImportValue VpcSubnetId
+      IamInstanceProfile: !ImportValue HostBCloudWatchAgentInstanceProfileId
       UserData:
         Fn::Base64: !Sub |
            #!/bin/bash
@@ -197,9 +111,10 @@ Resources:
            dpkg -i /tmp/amazon-cloudwatch-agent.deb
            apt-get update -y
            apt-get  install -y python-pip python-pystache
+           pip install python-daemon==1.5.2
            easy_install --script-dir /opt/aws/bin  https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource EC2Instance --region ${AWS::Region} --configsets default
-           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource EC2Instance --region ${AWS::Region}
+           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource HostB --region ${AWS::Region} --configsets default
+           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource HostB --region ${AWS::Region}
   HostBEip:
     Type: AWS::EC2::EIP
     Properties:
