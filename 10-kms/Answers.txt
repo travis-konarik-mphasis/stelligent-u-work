@@ -1,0 +1,17 @@
+Lab 10.1.1
+aws cloudformation create-stack --stack-name lab-10-1-1 --template-body file://lab_10.1.1.yaml
+
+Lab 10.1.2
+aws cloudformation update-stack --stack-name lab-10-1-1 --template-body file://lab_10.1.2.yaml
+
+Lab 10.1.3
+aws kms encrypt --key-id alias/EasyToRemeber --plaintext fileb://secret.txt --output text --query CiphertextBlob | base64 --decode > encrypted-secret
+
+Lab 10.1.4
+aws kms decrypt --ciphertext-blob fileb://encrypted-secret --output text --query Plaintext | base64 --decode > decrypted-secret.txt
+
+Lab 10.2.1
+aws cloudformation update-stack --stack-name lab-10-1-1 --template-body file://lab_10.2.1.yaml
+python3 lab_10.2.1.py
+
+Lab 10.2.2
