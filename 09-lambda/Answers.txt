@@ -1,0 +1,15 @@
+Lab 9.1.1
+Lab 9.1.2
+aws cloudformation create-stack --stack-name lab-9-1-2 --template-body file://lab_9.1.2a.yaml --capabilities=CAPABILITY_IAM
+aws apigateway test-invoke-method --rest-api-id ryi1iqehk1 --resource-id 53s3ch7cc6 --http-method GET
+aws cloudformation update-stack --stack-name lab-9-1-2 --template-body file://lab_9.1.2b.yaml --capabilities=CAPABILITY_IAM
+aws apigateway test-invoke-method --rest-api-id ryi1iqehk1 --resource-id 53s3ch7cc6 --http-method POST --body '{"value": "Tester"}'
+
+Lab 9.1.3
+aws cloudformation package --template-file lab_9.1.3.yaml --s3-bucket testbucket-9-1-3 --output-template-file lab_9.1.3_packaged.yaml
+aws cloudformation deploy --template-file lab_9.1.3_packaged.yaml --stack-name lab-9-1-3 --capabilities=CAPABILITY_IAM
+aws apigateway test-invoke-method --rest-api-id 6v35duz1ke --resource-id knwvgjuxik --http-method POST --body '{"value": "Tester"}'
+
+Lab 9.2.1
+aws cloudformation create-stack --stack-name lab-9-2-1 --template-body file://lab_9.2.1.yaml --capabilities CAPABILITY_IAM
+aws apigateway test-invoke-method --rest-api-id 5hw42wydni --resource-id x15awxqslc --http-method POST --body '{"hk": "testing", "sk": "tester"}'
