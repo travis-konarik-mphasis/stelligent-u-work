@@ -8,11 +8,20 @@ Resources:
           AttributeType: S
         - AttributeName: NAME
           AttributeType: S
+        - AttributeName: VALUE
+          AttributeType: S
       KeySchema:
         - AttributeName: ID
           KeyType: HASH
-        - AttributeName: NAME
-          KeyType: SORT
+      GlobalSecondaryIndexes:
+        - IndexName: NAME-Index
+          KeySchema:
+            - AttributeName: NAME
+              KeyType: HASH
+            - AttributeName: VALUE
+              KeyType: SORT
+          Projection:
+            ProjectionType: ALL
       ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
