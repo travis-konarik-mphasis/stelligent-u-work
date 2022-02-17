@@ -22,6 +22,9 @@ Resources:
               KeyType: SORT
           Projection:
             ProjectionType: ALL
+          ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
       ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
