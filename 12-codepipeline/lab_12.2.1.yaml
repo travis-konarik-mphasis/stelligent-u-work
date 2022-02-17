@@ -19,7 +19,7 @@ Resources:
             - AttributeName: NAME
               KeyType: HASH
             - AttributeName: VALUE
-              KeyType: SORT
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
