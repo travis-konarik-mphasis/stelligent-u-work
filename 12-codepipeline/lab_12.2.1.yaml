@@ -1,0 +1,43 @@
+Resources:
+  TestDynamoDb:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: testing-table
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: NAME
+          AttributeType: S
+        - AttributeName: VALUE
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: NAME-Index
+          KeySchema:
+            - AttributeName: NAME
+              KeyType: HASH
+            - AttributeName: VALUE
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
+      ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+  LambdaExecuteRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::324320755747:policy/DynamoFullAccess

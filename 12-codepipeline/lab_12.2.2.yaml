@@ -1,0 +1,126 @@
+Parameters:
+  BucketName:
+    Type: String
+    Default: testbucket-12-1-1
+Resources:
+  TestBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+  CloudFormationPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "cloudformation:*"
+              - "s3:*"
+              - iam:PassRole
+            Resource: "*"
+  CloudFormationRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Ref CloudFormationPolicy
+  DynamoPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "dynamodb:*"
+              - iam:CreateRole
+              - iam:DetachRolePolicy
+              - iam:AttachRolePolicy
+            Resource: "*"
+  DynamoRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Ref DynamoPolicy
+  TestPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref BucketName
+      RoleArn: !GetAtt CloudFormationRole.Arn
+      Stages:
+        -
+          Name: Source
+          Actions:
+            -
+              Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                Owner: travis-konarik-mphasis
+                Repo: stelligent-u-work
+                Branch: 12-codepipeline
+                OAuthToken: '{{resolve:secretsmanager:travis.konarik/GitHubSecret:SecretString:token}}'
+                PollForSourceChanges: true
+              RunOrder: 1
+        -
+          Name: Deploy
+          Actions:
+            -
+              Name: CreateChangeSet
+              InputArtifacts:
+                - Name: SourceArtifact
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: lab-12-2-1-deploy
+                Capabilities: CAPABILITY_IAM
+                ChangeSetName: lab-12-2-1-change-set
+                RoleArn: !GetAtt DynamoRole.Arn
+                TemplatePath: SourceArtifact::12-codepipeline/lab_12.2.1.yaml
+              RunOrder: 1
+            -
+              Name: ExecuteChangeSet
+              InputArtifacts:
+                - Name: SourceArtifact
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: lab-12-2-1-deploy
+                Capabilities: CAPABILITY_IAM
+                ChangeSetName: lab-12-2-1-change-set
+                RoleArn: !GetAtt DynamoRole.Arn
+                TemplatePath: SourceArtifact::12-codepipeline/lab_12.2.1.yaml
+              RunOrder: 1
