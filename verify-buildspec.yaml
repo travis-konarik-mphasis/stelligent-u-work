@@ -1,0 +1,16 @@
+version: 0.2
+
+env:
+  shell: bash
+
+batch:
+  fast-fail: false | true
+  # build-list:
+  # build-matrix:
+  # build-graph:
+
+phases:
+  pre_build:
+    commands:
+      - ls -la
+      - aws cloudformation describe-stacks --stack-name lab-12-1-1-deploy --query "[Stacks][0][0].StackStatus"
