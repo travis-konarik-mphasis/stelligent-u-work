@@ -6,9 +6,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: ID
           AttributeType: S
+        - AttributeName: NAME
+          AttributeType: S
       KeySchema:
         - AttributeName: ID
           KeyType: HASH
+        - AttributeName: NAME
+          KeyType: SORT
       ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
