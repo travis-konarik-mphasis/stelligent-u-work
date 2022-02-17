@@ -1,0 +1,11 @@
+Lab 12.1.1
+aws cloudformation create-stack --stack-name lab-12-1-1 --template-body file://lab_12.1.1.yaml --capabilities CAPABILITY_IAM
+
+Lab 12.1.2
+aws cloudformation update-stack --stack-name lab-12-1-1 --template-body file://lab_12.1.2.yaml --capabilities CAPABILITY_IAM
+
+Lab 12.2.1
+aws cloudformation create-stack --stack-name lab-12-2-1 --template-body file://lab_12.2.1.yaml --capabilities CAPABILITY_IAM
+
+Lab 12.2.2
+Lab 12.2.3
