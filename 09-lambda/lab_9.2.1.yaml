@@ -1,0 +1,126 @@
+Parameters:
+  lambdaFunctionName:
+    Type: String
+    Default: testFunction2
+Resources:
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: Example API Gateway
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: Api Gateway
+#      Policy:
+#        Version: "2012-10-17"
+#        Statement:
+#          - Effect: Allow
+#            Action: "lambda:InvokeFunction"
+#            Resource: "*"
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt TestLambda.Arn
+      ResourceId: !GetAtt ApiGatewayRestApi.RootResourceId
+      RestApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiGatewayMethod
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      StageName: test
+
+  TestLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            const body = JSON.parse(event.body)
+            let response;
+            if(!body.hk || !body.sk) {
+              return {
+                statusCode: 422,
+                body: JSON.stringify('Please Supply an hk and sk'),
+              };
+            } else {
+              var AWS = require('aws-sdk');
+              var ddb = new AWS.DynamoDB();
+              var params = {
+                TableName: 'testing-table',
+                Item: {
+                  'hk' : {S: body.hk},
+                  'sk' : {S: body.sk}
+                }
+              };
+              return ddb.putItem(params
+              ).promise()
+                .then(() => {
+                  return {
+                    statusCode: 200,
+                    body: JSON.stringify('Record Saved'),
+                  }
+                })
+                .catch(() => {
+                  return {
+                    statusCode: 500,
+                    body: JSON.stringify('Failed to saved record'),
+                  }
+                });
+            };
+          };
+      FunctionName: !Ref lambdaFunctionName
+      Handler: index.handler
+      Role: !GetAtt LambdaExecuteRole.Arn
+      Runtime: nodejs14.x
+      Timeout: 60
+  LambdaExecuteRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
+        - arn:aws:iam::324320755747:policy/DynamoFullAccess
+  RestApiLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+    - ApiGatewayRestApi
+    - TestLambda
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TestLambda
+      Principal: apigateway.amazonaws.com
+  TestDynamoDb:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: testing-table
+      AttributeDefinitions:
+        - AttributeName: hk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: hk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
