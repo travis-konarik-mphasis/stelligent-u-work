@@ -1,0 +1,95 @@
+Description: "This is a sample yaml cloud formation template."
+Parameters:
+  AllCidrBlock:
+    Description: "Parameter Specified All CIDR Block Value"
+    Type: String
+  VpcCidrBlock:
+    Description: "Parameter Specified VPC CIDR Block Value"
+    Type: String
+  VpcSubnetCidrBlock:
+    Description: "Parameter Specified VPC Subnet CIDR Block Value"
+    Type: String
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidrBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: user
+          Value: tkonarik
+        - Key: stelligent-u-lesson
+          Value: 4
+        - Key: stelligent-u-lab
+          Value: 4.1.1
+  VpcInternetGateway:
+    Type: AWS::EC2::InternetGateway
+  VpcInternetGatewayAttachement:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref VpcInternetGateway
+      VpcId: !Ref Vpc
+  VpcRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+  VpcInternetGatewayRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - VpcInternetGateway
+      - VpcInternetGatewayAttachement
+    Properties:
+      RouteTableId: !Ref VpcRouteTable
+      DestinationCidrBlock: !Ref AllCidrBlock
+      GatewayId: !Ref VpcInternetGateway
+  VpcSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref VpcSubnetCidrBlock
+      VpcId: !Ref Vpc
+      AvailabilityZone: us-east-1a
+  VpcSubnetRoutTableAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VpcRouteTable
+      SubnetId: !Ref VpcSubnet
+  VpcSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref Vpc
+      GroupDescription: Vpc Security Group
+      SecurityGroupIngress:
+      - IpProtocol: icmp
+        FromPort: 8
+        ToPort: -1
+        CidrIp: !Ref AllCidrBlock
+  512LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: 512LaunchTemplate
+      LaunchTemplateData:
+        InstanceType: t2.micro
+        KeyName: tk-key
+        SecurityGroupIds:
+          - !Ref VpcSecurityGroup
+  HostB:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 512LaunchTemplate
+        Version: 1
+      ImageId: ami-096198a0bccc6bad4
+      AvailabilityZone: us-east-1a
+      SubnetId: !Ref VpcSubnet
+  HostBEip:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref HostB
+Outputs:
+  HostBEipId:
+    Description: "Host B's Eip Id"
+    Value: !Ref HostBEip
+    Export:
+      Name: HostBEipId
