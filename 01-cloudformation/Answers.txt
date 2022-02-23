@@ -1,0 +1,32 @@
+Lab 1.1.1
+aws cloudformation create-stack --stack-name lab-1-1-1 --template-body file://lab_1.1.1.yaml
+
+Lab 1.1.2
+aws cloudformation create-stack --stack-name lab-1-1-2 --template-body file://lab_1.1.2.yaml --parameters file://parameters-lab_1.1.2.json
+
+Lab 1.1.3
+aws cloudformation create-stack --stack-name lab-1-1-3 --template-body file://lab_1.1.3.yaml --parameters file://parameters-lab_1.1.3.json
+
+Lab 1.1.4
+aws cloudformation update-stack --stack-name lab-1-1-3 --template-body file://lab_1.1.4.yaml --parameters file://parameters-lab_1.1.4.json
+aws --region us-west-1 cloudformation update-stack --stack-name lab-1-1-3 --template-body file://lab_1.1.4.yaml --parameters file://parameters-lab_1.1.4.json
+
+Lab 1.1.5
+aws cloudformation delete-stack --stack-name lab-1-1-3
+aws --region us-west-1 cloudformation delete-stack --stack-name lab-1-1-3
+aws list-buckets
+aws --region us-west-1 list-buckets
+
+Lab 1.2.1
+aws cloudformation create-stack --stack-name lab-1-2-1 --template-body file://lab_1.2.1.yaml --parameters file://parameters-lab_1.2.1.json
+
+Lab 1.2.2
+aws cloudformation update-stack --stack-name lab-1-2-1 --template-body file://lab_1.2.2.yaml --parameters file://parameters-lab_1.2.2.json
+aws cloudformation list-exports
+
+Lab 1.2.3
+aws cloudformation create-stack --stack-name lab-1-2-3 --template-body file://lab_1.2.3.yaml --parameters file://parameters-lab_1.2.3.json
+aws cloudformation list-imports
+
+Lab 1.2.4
+aws cloudformation delete-stack --stack-name lab-1-2-1

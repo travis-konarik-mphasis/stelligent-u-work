@@ -1,0 +1,7 @@
+Description: "This is a sample yaml cloud formation template."
+Resources:
+  AccountIdS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: test-bucket
+      
