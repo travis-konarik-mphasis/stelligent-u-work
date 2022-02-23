@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: user
+          Value: tkonarik
+        - Key: stelligent-u-lesson
+          Value: 4
+        - Key: stelligent-u-lab
+          Value: 4.1.1
+  VpcInternetGateway:
+    Type: AWS::EC2::InternetGateway
+  VpcInternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref VpcInternetGateway
+      VpcId: !Ref Vpc
+  VpcPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId: !Ref Vpc
+      AvailabilityZone: us-east-1a
+  VpcPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.1.0/24
+      VpcId: !Ref Vpc
+      AvailabilityZone: us-east-1b
+  VpcPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+  VpcPublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VpcInternetGateway
+      RouteTableId: !Ref VpcPublicRouteTable
+  VpcPublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VpcPublicRouteTable
+      SubnetId: !Ref VpcPublicSubnet1
+  VpcPublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VpcPublicRouteTable
+      SubnetId: !Ref VpcPublicSubnet2
+  VpcAlbSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP access on port 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: "0.0.0.0/0"
+      VpcId: !Ref Vpc
+  VpcAlbHttpsSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTPS access on port 443
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: "0.0.0.0/0"
+      VpcId: !Ref Vpc
+  VpcSshSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SSH Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref Vpc
+Outputs:
+  VpcId:
+    Description: "VPC Id"
+    Value: !Ref Vpc
+    Export:
+      Name: VpcId
+  VpcPublicSubnet1Id:
+    Description: "VPC Subnet1 Id"
+    Value: !Ref VpcPublicSubnet1
+    Export:
+      Name: VpcPublicSubnet1Id
+  VpcPublicSubnet2Id:
+    Description: "VPC Subnet2 Id"
+    Value: !Ref VpcPublicSubnet2
+    Export:
+      Name: VpcPublicSubnet2Id
+  VpcAlbSecurityGroupId:
+    Description: "VPC alb Security Group Id"
+    Value: !Ref VpcAlbSecurityGroup
+    Export:
+      Name: VpcAlbSecurityGroupId
+  VpcSshSecurityGroupId:
+    Description: "VPC ssh Security Group Id"
+    Value: !Ref VpcSshSecurityGroup
+    Export:
+      Name: VpcSshSecurityGroupId
+  VpcAlbHttpsSecurityGroupId:
+    Description: "VPC alb HTTPS Security Group Id"
+    Value: !Ref VpcAlbHttpsSecurityGroup
+    Export:
+      Name: VpcAlbHttpsSecurityGroupId

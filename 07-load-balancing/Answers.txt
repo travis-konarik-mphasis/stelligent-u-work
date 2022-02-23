@@ -1,0 +1,14 @@
+Lab 7.1.1
+aws cloudformation create-stack --stack-name lab-7-1-1-vpc --template-body file://lab_7.1.1_vpc.yaml
+aws cloudformation create-stack --stack-name lab-7-1-1-instances --template-body file://lab_7.1.1_instances.yaml
+
+Lab 7.1.2
+aws cloudformation update-stack --stack-name lab-7-1-1-instances --template-body file://lab_7.1.2_instances.yaml
+
+Lab 7.1.3
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+aws acm import-certificate --certificate file://certificate.pem --private-key file://key.pem
+aws cloudformation update-stack --stack-name lab-7-1-1-vpc --template-body file://lab_7.1.3_vpc.yaml
+aws cloudformation update-stack --stack-name lab-7-1-1-instances --template-body file://lab_7.1.3_instances.yaml
+
+Lab 7.1.4
